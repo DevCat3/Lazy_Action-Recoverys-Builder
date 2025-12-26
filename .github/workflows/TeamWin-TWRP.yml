@@ -182,12 +182,20 @@ jobs:
     - name: Set Build Date # Output will be use in Release
       run: |
         echo "BUILD_DATE=$(date +%Y%m%d)" >> $GITHUB_ENV
+
+    - name: Zip recovery image
+      run: |
+        cd android-recovery/out/target/product/${{ env.DEVICE_NAME }}
+        ZIP_NAME=TWRP-${{ env.DEVICE_NAME }}-${{ env.BUILD_TARGET_NAME }}-${{ env.BUILD_DATE }}.zip
+        zip -r $ZIP_NAME ${{ env.BUILD_TARGET_NAME }}.img
+        echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
       
     - name: Upload to Release
       uses: softprops/action-gh-release@master
       with:
         files: |
           android-recovery/out/target/product/${{ env.DEVICE_NAME }}/${{ env.BUILD_TARGET_NAME }}.img
+          android-recovery/out/target/product/${{ env.DEVICE_NAME }}/${{ env.ZIP_NAME }}
           android-recovery/out/target/product/${{ env.DEVICE_NAME }}/*installer*zip
           android-recovery/out/target/product/${{ env.DEVICE_NAME }}/ramdisk-recovery.*
         name: Unofficial TWRP for ${{ env.DEVICE_NAME }} // ${{ env.BUILD_DATE }}
